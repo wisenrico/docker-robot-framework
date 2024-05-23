@@ -39,7 +39,6 @@ ENV CHROMIUM_VERSION 125.0
 ENV DATABASE_LIBRARY_VERSION 1.4.3
 ENV DATADRIVER_VERSION 1.10.0
 ENV DATETIMETZ_VERSION 1.0.6
-ENV MICROSOFT_EDGE_VERSION 125.0.2535.51
 ENV FAKER_VERSION 5.0.0
 ENV FIREFOX_VERSION 126.0
 ENV FTP_LIBRARY_VERSION 1.9
@@ -121,25 +120,9 @@ RUN dnf install -y \
     wget \
   && dnf clean all
 
-# Install Microsoft Edge & webdriver
-RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
-  && dnf config-manager --add-repo https://packages.microsoft.com/yumrepos/edge \
-  && dnf install -y \
-    microsoft-edge-stable-${MICROSOFT_EDGE_VERSION} \
-    wget \
-    zip \
-
-  && wget -q "https://msedgedriver.azureedge.net/${MICROSOFT_EDGE_VERSION}/edgedriver_linux64.zip" \
-  && unzip edgedriver_linux64.zip -d edge \
-  && mv edge/msedgedriver /opt/robotframework/drivers/msedgedriver \
-  && rm -Rf edgedriver_linux64.zip edge/ \
-
-  # IMPORTANT: don't remove the wget package because it's a dependency of Microsoft Edge
-  && dnf remove -y \
+RUN dnf remove -y \
     zip \
   && dnf clean all
-
-ENV PATH=/opt/microsoft/msedge:$PATH
 
 # FIXME: Playright currently doesn't support relying on system browsers, which is why the `--skip-browsers` parameter cannot be used here.
 RUN rfbrowser init
